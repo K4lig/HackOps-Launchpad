@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVE Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        input {
+            width: 300px;
+            padding: 0.5rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+        }
+
+        pre {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f4f4f4;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>CVE Assistant</h1>
+
+    <input
+        id="cve"
+        type="text"
+        placeholder="CVE-2021-44228"
+    >
+
+    <button id="btn">
+        Explicar CVE
+    </button>
+
+    <pre id="out"></pre>
+
+    <script>
+        const input = document.getElementById("cve");
+        const button = document.getElementById("btn");
+        const out = document.getElementById("out");
+
+        button.addEventListener("click", async () => {
+            const valor = input.value.trim();
+
+            if (!valor) {
+                out.textContent = "Introduce un CVE.";
+                return;
+            }
+
+            out.textContent = "Consultando...";
+
+            try {
+                const response = await fetch(
+                    "/api/explain/" + encodeURIComponent(valor)
+                );
+
+                const data = await response.json();
+
+                out.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                out.textContent =
+                    "Error al consultar la API: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

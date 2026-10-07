@@ -1,4 +1,4 @@
 .env
 *.tfstate
 .terraform/
-__pycache__/
+__pycache__/.apis
