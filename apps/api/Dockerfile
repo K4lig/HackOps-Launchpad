@@ -6,7 +6,7 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 FROM python:3.12-slim
 WORKDIR /app
 COPY --from=builder /install /usr/local
-COPY . .
+COPY main.py .
 
 RUN useradd --uid 10001 appuser
 USER 10001

@@ -1,4 +1,8 @@
 .env
 *.tfstate
 .terraform/
-__pycache__/
+__pycache__/.apis
+key
+key.pub
+*.pem
+id_*
