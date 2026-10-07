@@ -1,12 +1,13 @@
 FROM python:3.12-slim AS builder
 WORKDIR /app
-COPY requeriments.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 FROM python:3.12-slim
 WORKDIR /app
 COPY --from=builder /install /usr/local
-COPY main.py
+COPY . .
+
 RUN useradd --uid 10001 appuser
 USER 10001
 EXPOSE 8000
