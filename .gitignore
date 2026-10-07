@@ -2,3 +2,7 @@
 *.tfstate
 .terraform/
 __pycache__/.apis
+key
+key.pub
+*.pem
+id_*
