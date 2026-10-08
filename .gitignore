@@ -6,3 +6,7 @@ key
 key.pub
 *.pem
 id_*
+*.tfstate.*
+tfplan
+*.tfvars
+!*.tfvars.example
