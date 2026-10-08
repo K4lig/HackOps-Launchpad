@@ -15,7 +15,7 @@ resource "azurerm_container_registry" "main" {
   tags                = local.tags
 }
 
-resource "azurerm_key_vault" "main" {
+resource "azurerm_key_vault" "main" { # nosemgrep: terraform.azure.security.keyvault.keyvault-purge-enabled.keyvault-purge-enabled
   #checkov:skip=CKV_AZURE_42:Entorno dev efimero sin secretos de produccion; se activa en prod
   #checkov:skip=CKV_AZURE_110:Entorno dev efimero sin secretos de produccion; se activa en prod
   #checkov:skip=CKV2_AZURE_32:Pendiente Dia 5, private endpoint junto con AKS

@@ -24,7 +24,7 @@ Cada excepción está marcada en el código con `#checkov:skip` y debe revisarse
 
 | ID | Hallazgo | Decisión | Justificación | Control compensatorio | Revisar |
 |---|---|---|---|---|---|
-| CKV_AZURE_110 | Purge protection | Aceptado | Entorno dev que se destruye y recrea; la protección impide eliminarlo por completo | Soft delete de 7 días activo; sin secretos de producción | Antes de producción |
+| CKV_AZURE_110 / semgrep: keyvault-pruge-enabled | Purge protection | Aceptado | Entorno dev que se destruye y recrea; la protección impide eliminarlo por completo | Soft delete de 7 días activo; sin secretos de producción | Antes de producción |
 | CKV_AZURE_42 | Vault recuperable | Aceptado | Mismo motivo que CKV_AZURE_110 | Soft delete de 7 días activo | Antes de producción |
 | CKV2_AZURE_32 | Private endpoint | Diferido | Se implementa junto con AKS | Firewall con `default_action = Deny` y solo IP administrativa permitida | Día 5 (2026-10-10) |
 | CKV_AZURE_189 | Acceso de red público deshabilitado | Diferido | Se implementa junto con AKS y el private endpoint | Firewall por IP; autorización solo por RBAC | Día 5 (2026-10-10) |
