@@ -6,6 +6,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   #checkov:skip=CKV_AZURE_115:Compensado con authorized_ip_ranges, Entra ID RBAC y cuentas locales desactivadas
   #checkov:skip=CKV_AZURE_116:Compensado con Pod Security Admission restricted por namespace
   #checkov:skip=CKV_AZURE_170:Control de disponibilidad (SLA), no de seguridad; no aplica a prototipo
+  #checkov:skip=CKV_AZURE_6:Falso positivo; Checkov no evalua la expresion for. Verificado con az aks show (apiServerAccessProfile)
   name                = "aks-${local.name}"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name

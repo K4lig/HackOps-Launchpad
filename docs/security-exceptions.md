@@ -47,3 +47,4 @@ Cada excepción está marcada en el código con `#checkov:skip` y debe revisarse
 | CKV_AZURE_116 | Add-on Azure Policy | Aceptado | Consumo de recursos en nodo pequeño | Pod Security Admission restricted | Antes de producción |
 | CKV_AZURE_170 | SKU pagado con SLA | Aceptado | Disponibilidad, no seguridad | No aplica a prototipo | Antes de producción |
 | CKV_AZURE_4 | Logs a Azure Monitor | Diferido | Se implementa con observabilidad | Logs accesibles con kubectl | Día 7 (2026-10-12) |
+| CKV_AZURE_6 | Authorized IP ranges | Falso positivo | Checkov no resuelve la expresión `for` sobre `var.admin_ips` | Control activo, verificado con `az aks show` el 2026-10-10 | Al actualizar Checkov |
