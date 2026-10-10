@@ -35,3 +35,16 @@ Cada excepción está marcada en el código con `#checkov:skip` y debe revisarse
 |---|---|---|---|
 | CKV2_AZURE_31 | Subred sin NSG | NSG asociado a la subred de private endpoints | 2026-10-08 |
 | CKV_AZURE_109 | Key Vault sin firewall | `network_acls` con Deny por defecto e IP administrativa | 2026-10-08 |
+
+## AKS (azurerm_kubernetes_cluster.main)
+
+| ID | Hallazgo | Decisión | Justificación | Control compensatorio | Revisar |
+|---|---|---|---|---|---|
+| CKV_AZURE_117 | Disk encryption set (CMK) | Aceptado | CMK requiere purge protection; entorno dev efímero | Cifrado en reposo con claves de plataforma | Antes de producción |
+| CKV_AZURE_226 | Discos OS efímeros | Aceptado | Standard_B2s no lo soporta | Ninguno; usar VM compatible en prod | Antes de producción |
+| CKV_AZURE_232 | Pods solo críticos en pool de sistema | Aceptado | Un solo pool por costo | PSA restricted en namespaces de aplicación | Antes de producción |
+| CKV_AZURE_115 | Clúster privado | Aceptado | Requiere VPN o jumpbox | authorized_ip_ranges, Entra ID RBAC, cuentas locales desactivadas | Antes de producción |
+| CKV_AZURE_116 | Add-on Azure Policy | Aceptado | Consumo de recursos en nodo pequeño | Pod Security Admission restricted | Antes de producción |
+| CKV_AZURE_170 | SKU pagado con SLA | Aceptado | Disponibilidad, no seguridad | No aplica a prototipo | Antes de producción |
+| CKV_AZURE_4 | Logs a Azure Monitor | Diferido | Se implementa con observabilidad | Logs accesibles con kubectl | Día 7 (2026-10-12) |
+| CKV_AZURE_6 | Authorized IP ranges | Falso positivo | Checkov no resuelve la expresión `for` sobre `var.admin_ips` | Control activo, verificado con `az aks show` el 2026-10-10 | Al actualizar Checkov |

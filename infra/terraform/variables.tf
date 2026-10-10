@@ -22,3 +22,8 @@ variable "admin_ips" {
   type        = list(string)
   description = "IPs públicas con acceso administrativo al Key Vault"
 }
+
+variable "aks_vm_size" {
+  type    = string
+  default = "Standard_B2s"
+}
