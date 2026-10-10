@@ -41,4 +41,5 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - run: >
           docker run --rm -v "$PWD/infra/terraform:/tf"
-          bridgecrew/checkov -d /tf --compact --quiet
+          bridgecrew/checkov@sha256:8e63f217cb084f1c1a067326a9cf6e37d54bdc82e5822210d50ca4e2f647dd93
+          -d /tf --var-file /tf/terraform.tfvars.example --compact --quiet
