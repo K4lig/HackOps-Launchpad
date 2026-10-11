@@ -1,4 +1,5 @@
 name: CI
+
 on:
   pull_request:
   push:
@@ -11,9 +12,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-        with: { python-version: "3.12" }
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12
       - run: pip install -r apps/api/requirements.txt pytest
       - run: cd apps/api && pytest -q
 
@@ -21,18 +23,22 @@ jobs:
     runs-on: ubuntu-latest
     container: semgrep/semgrep
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - run: semgrep scan --config p/default --error
 
   image-scan:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - run: |
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Construir imagenes
+        run: |
           docker build -t cve-api:ci apps/api
           docker build -t cve-frontend:ci apps/frontend
-      - run: |
+
+      - name: Escanear con Trivy
+        run: |
           for IMG in cve-api cve-frontend; do
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
               aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa \
@@ -42,8 +48,8 @@ jobs:
   iac-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - run: >
-          docker run --rm -v "$PWD/infra/terraform:/tf"
+          docker run --rm -v /home/jhaz/HackOps-Launchpad/infra/terraform:/tf
           bridgecrew/checkov@sha256:8e63f217cb084f1c1a067326a9cf6e37d54bdc82e5822210d50ca4e2f647dd93
           -d /tf --var-file /tf/terraform.tfvars.example --compact --quiet
