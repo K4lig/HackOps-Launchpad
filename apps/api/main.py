@@ -5,6 +5,7 @@ import re
 import httpx
 from fastapi import FastAPI, HTTPException
 from openai import AsyncOpenAI
+from pathlib import Path
 
 logger = logging.getLogger("cve-api")
 
@@ -13,10 +14,17 @@ app = FastAPI(title="CVE Copilot API")
 NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 CVE_PATTERN = re.compile(r"CVE-\d{4}-\d{4,}")
 
+def get_secret(name: str, env_var: str) -> str:
+    path = Path("/mnt/secrets") / name
+    if path.exists():
+        return path.read_text().strip()
+    return os.getenv(env_var, "missing")
+
 llm = AsyncOpenAI(
     base_url=os.getenv("LLM_BASE_URL"),
-    api_key=os.getenv("LLM_API_KEY", "missing"),
+    api_key=get_secret("llm-api-key", "LLM_API_KEY"),
 )
+
 MODEL = os.getenv("LLM_MODEL", "gpt-5-mini")
 
 
