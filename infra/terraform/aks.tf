@@ -30,6 +30,9 @@ resource "azurerm_kubernetes_cluster" "main" {
     max_pods                    = 50
     temporary_name_for_rotation = "tmpsystem"
     host_encryption_enabled     = true
+    upgrade_settings {
+      max_surge = "10%"
+    }
   }
 
   node_provisioning_profile {
