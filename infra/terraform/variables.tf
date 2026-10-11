@@ -27,3 +27,8 @@ variable "aks_vm_size" {
   type    = string
   default = "Standard_B2s"
 }
+
+variable "github_repo" {
+  type    = string
+  default = "K4lig/HackOps-Launchpad"
+}

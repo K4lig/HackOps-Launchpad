@@ -1,0 +1,87 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ACR_NAME: acrhackopsdev23xhf
+  RESOURCE_GROUP: rg-hackops-dev
+  CLUSTER: aks-hackops-dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - id: vars
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Construir imagenes
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          docker build -t "$ACR_NAME.azurecr.io/cve-api:$TAG" apps/api
+          docker build -t "$ACR_NAME.azurecr.io/cve-frontend:$TAG" apps/frontend
+
+      - name: Escanear con Trivy
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          for IMG in cve-api cve-frontend; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              aquasec/trivy image --exit-code 1 --severity CRITICAL,HIGH \
+              --ignore-unfixed "$ACR_NAME.azurecr.io/$IMG:$TAG"
+          done
+
+      - uses: azure/login@935127ca5bb3c4b02c9c2c10060028383878f33f
+        with:
+          client-id: ${{ vars.AZURE_BUILD_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Publicar en ACR
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          az acr login --name "$ACR_NAME"
+          docker push "$ACR_NAME.azurecr.io/cve-api:$TAG"
+          docker push "$ACR_NAME.azurecr.io/cve-frontend:$TAG"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: azure/login@935127ca5bb3c4b02c9c2c10060028383878f33f
+        with:
+          client-id: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Desplegar con Helm via command invoke
+        working-directory: charts
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          RESULT=$(az aks command invoke \
+            -g "$RESOURCE_GROUP" -n "$CLUSTER" \
+            --command "helm upgrade --install cve-copilot ./cve-copilot -n cve-copilot --set image.tag=$TAG --wait --timeout 5m" \
+            --file cve-copilot -o json)
+          echo "$RESULT" | jq -r '.logs'
+          test "$(echo "$RESULT" | jq -r '.exitCode')" = "0"
