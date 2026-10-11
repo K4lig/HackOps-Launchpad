@@ -39,18 +39,28 @@ def validate_cve_id(cve_id: str) -> str:
 def health():
     return {"status": "ok"}
 
-
 @app.get("/api/cve/{cve_id}")
 async def get_cve(cve_id: str):
     cve_id = validate_cve_id(cve_id)
-    async with httpx.AsyncClient(timeout=15) as client:
-        r = await client.get(NVD, params={"cveId": cve_id})
-    data = r.json().get("vulnerabilities", [])
+    headers = {}
+    nvd_key = get_secret("nvd-api-key", "NVD_API_KEY")
+    if nvd_key != "missing":
+        headers["apiKey"] = nvd_key
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(NVD, params={"cveId": cve_id}, headers=headers)
+        r.raise_for_status()
+        data = r.json().get("vulnerabilities", [])
+    except httpx.HTTPStatusError as e:
+        logger.warning("NVD respondio %s para %s", e.response.status_code, cve_id)
+        raise HTTPException(502, "No se pudo consultar la base de datos de CVEs. Intenta mas tarde.")
+    except (httpx.HTTPError, ValueError):
+        logger.exception("Fallo al consultar NVD para %s", cve_id)
+        raise HTTPException(502, "No se pudo consultar la base de datos de CVEs. Intenta mas tarde.")
     if not data:
         raise HTTPException(404, f"CVE '{cve_id}' no encontrado")
     cve = data[0]["cve"]
     return {"id": cve["id"], "description": cve["descriptions"][0]["value"]}
-
 
 @app.get("/api/explain/{cve_id}")
 async def explain(cve_id: str):
