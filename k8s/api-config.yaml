@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api
+  namespace: cve-copilot
+  annotations:
+    azure.workload.identity/client-id: "ba3795e9-89fa-4945-809d-093548eb6c1a"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-config
+  namespace: cve-copilot
+data:
+  LLM_BASE_URL: "https://jandrycabezas-5003-resource.services.ai.azure.com/api/projects/jandrycabezas-5003"
+  LLM_MODEL: "gpt-5-mini"
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: kv-llm
+  namespace: cve-copilot
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    clientID: "ba3795e9-89fa-4945-809d-093548eb6c1a"
+    keyvaultName: "kv-hackops-dev-23xhf"
+    tenantId: "3d285e75-2402-401a-aa82-b00278f48a41"
+    objects: |
+      array:
+        - |
+          objectName: llm-api-key
+          objectType: secret
+        - |
+          objectName: nvd-api-key
+          objectType: secret

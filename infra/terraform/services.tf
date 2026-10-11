@@ -25,8 +25,7 @@ resource "azurerm_container_registry" "main" {
 resource "azurerm_key_vault" "main" { # nosemgrep: terraform.azure.security.keyvault.keyvault-purge-enabled.keyvault-purge-enabled
   #checkov:skip=CKV_AZURE_42:Entorno dev efimero sin secretos de produccion; se activa en prod
   #checkov:skip=CKV_AZURE_110:Entorno dev efimero sin secretos de produccion; se activa en prod
-  #checkov:skip=CKV2_AZURE_32:Pendiente Dia 5, private endpoint junto con AKS
-  #checkov:skip=CKV_AZURE_189:Pendiente Dia 5, private endpoint junto con AKS
+  #checkov:skip=CKV_AZURE_189:Acceso publico restringido por firewall a IP admin; AKS accede por private endpoint. En prod, agentes dentro de la VNet
   name                       = "kv-${local.name}-${random_string.suffix.result}"
   location                   = azurerm_resource_group.main.location
   resource_group_name        = azurerm_resource_group.main.name

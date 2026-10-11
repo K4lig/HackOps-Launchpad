@@ -12,19 +12,25 @@ spec:
     metadata:
       labels:
         app: api
+        azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: api
       securityContext:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: api
-          image: acrhackopsdev23xhf.azurecr.io/cve-api:8940767
+          image: acrhackopsdev23xhf.azurecr.io/cve-api:36e6559
           ports:
             - containerPort: 8000
           envFrom:
-            - secretRef:
+            - configMapRef:
                 name: llm-config
+          volumeMounts:
+            - name: secrets
+              mountPath: /mnt/secrets
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -46,6 +52,13 @@ spec:
               path: /health
               port: 8000
             initialDelaySeconds: 10
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: kv-llm
 ---
 apiVersion: v1
 kind: Service
