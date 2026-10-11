@@ -29,11 +29,15 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - run: docker build -t cve-api:ci apps/api
-      - run: >
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock
-          aquasec/trivy image --exit-code 1 --severity CRITICAL,HIGH
-          --ignore-unfixed cve-api:ci
+      - run: |
+          docker build -t cve-api:ci apps/api
+          docker build -t cve-frontend:ci apps/frontend
+      - run: |
+          for IMG in cve-api cve-frontend; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa \
+              image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed "$IMG:ci"
+          done
 
   iac-scan:
     runs-on: ubuntu-latest
