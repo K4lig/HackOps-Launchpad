@@ -31,3 +31,9 @@ resource "azurerm_role_assignment" "ado_plan_state" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.ado_plan.principal_id
 }
+
+resource "azurerm_role_assignment" "ado_plan_aks_user" {
+  scope                = azurerm_kubernetes_cluster.main.id
+  role_definition_name = "Azure Kubernetes Service Cluster User Role"
+  principal_id         = azurerm_user_assigned_identity.ado_plan.principal_id
+}

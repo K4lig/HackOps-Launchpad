@@ -47,3 +47,8 @@ variable "tfstate_storage_account" {
   type        = string
   description = "Storage account que guarda el state de Terraform"
 }
+
+variable "admin_object_id" {
+  type        = string
+  description = "Object ID en Entra ID de la persona administradora del entorno"
+}
