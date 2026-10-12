@@ -22,6 +22,9 @@ steps:
     env:
       TF_VAR_admin_ips: $(ADMIN_IPS)
       TF_VAR_budget_email: $(BUDGET_EMAIL)
+      TF_VAR_admin_object_id: $(ADMIN_OBJECT_ID)
+      TF_VAR_ado_issuer: $(ADO_ISSUER)
+      TF_VAR_ado_subject: $(ADO_SUBJECT)
     inputs:
       azureSubscription: azure-hackops-plan
       scriptType: bash
@@ -36,7 +39,5 @@ steps:
         export ARM_SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
         cd infra/terraform
         terraform init -input=false
-        terraform plan -input=false -lock-timeout=5m \
-          -var "ado_issuer=unused" -var "ado_subject=unused" \
-          -var "tfstate_storage_account=$(grep storage_account_name versions.tf | cut -d'"' -f2)" \
-          -no-color
+        terraform plan -input=false -lock-timeout=5m -no-color \
+          -var "tfstate_storage_account=$(grep storage_account_name versions.tf | cut -d'"' -f2)"

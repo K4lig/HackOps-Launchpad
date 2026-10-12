@@ -13,6 +13,7 @@ resource "azurerm_consumption_budget_resource_group" "main" {
     threshold      = 50
     operator       = "GreaterThan"
     contact_emails = [var.budget_email]
+    threshold_type = "Actual"
   }
 
   notification {
@@ -20,5 +21,6 @@ resource "azurerm_consumption_budget_resource_group" "main" {
     threshold      = 90
     operator       = "GreaterThan"
     contact_emails = [var.budget_email]
+    threshold_type = "Actual"
   }
 }
