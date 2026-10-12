@@ -30,5 +30,5 @@ variable "aks_vm_size" {
 
 variable "github_repo" {
   type    = string
-  default = "K4lig/HackOps-Launchpad"
+  default = "K4lig@119822340/HackOps-Launchpad@1408025958"
 }
