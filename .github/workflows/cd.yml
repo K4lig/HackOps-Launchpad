@@ -69,6 +69,9 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
+      - name: Empaquetar chart
+        run: helm package charts/cve-copilot --destination "$RUNNER_TEMP/chart"
+
       - uses: azure/login@935127ca5bb3c4b02c9c2c10060028383878f33f
         with:
           client-id: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
@@ -76,13 +79,14 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Desplegar con Helm via command invoke
-        working-directory: charts
         env:
           TAG: ${{ needs.build.outputs.tag }}
         run: |
+          cd "$RUNNER_TEMP/chart"
+          CHART=$(ls cve-copilot-*.tgz)
           RESULT=$(az aks command invoke \
             -g "$RESOURCE_GROUP" -n "$CLUSTER" \
-            --command "helm upgrade --install cve-copilot ./cve-copilot -n cve-copilot --set image.tag=$TAG --wait --timeout 5m" \
-            --file cve-copilot -o json)
+            --command "helm upgrade --install cve-copilot ./$CHART -n cve-copilot --set image.tag=$TAG --wait --timeout 5m" \
+            --file "$CHART" -o json)
           echo "$RESULT" | jq -r '.logs'
           test "$(echo "$RESULT" | jq -r '.exitCode')" = "0"

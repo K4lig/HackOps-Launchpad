@@ -5,10 +5,10 @@ resource "azurerm_private_dns_zone" "kv" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "kv" {
-  name                  = "link-kv-${local.name}"
-  private_dns_zone_id   = azurerm_private_dns_zone.kv.id
-  virtual_network_id    = azurerm_virtual_network.main.id
-  tags                  = local.tags
+  name                = "link-kv-${local.name}"
+  private_dns_zone_id = azurerm_private_dns_zone.kv.id
+  virtual_network_id  = azurerm_virtual_network.main.id
+  tags                = local.tags
 }
 
 resource "azurerm_private_endpoint" "kv" {
