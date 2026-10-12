@@ -7,6 +7,19 @@ from fastapi import FastAPI, HTTPException
 from openai import AsyncOpenAI
 from pathlib import Path
 
+def get_secret(name: str, env_var: str) -> str:
+    path = Path("/mnt/secrets") / name
+    if path.exists():
+        return path.read_text().strip()
+    return os.getenv(env_var, "missing")
+
+
+APPINSIGHTS = get_secret("appinsights-connection-string", "APPLICATIONINSIGHTS_CONNECTION_STRING")
+if APPINSIGHTS != "missing":
+    from azure.monitor.opentelemetry import configure_azure_monitor
+
+    configure_azure_monitor(connection_string=APPINSIGHTS)
+
 logger = logging.getLogger("cve-api")
 
 app = FastAPI(title="CVE Copilot API")
@@ -14,26 +27,17 @@ app = FastAPI(title="CVE Copilot API")
 NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 CVE_PATTERN = re.compile(r"CVE-\d{4}-\d{4,}")
 
-def get_secret(name: str, env_var: str) -> str:
-    path = Path("/mnt/secrets") / name
-    if path.exists():
-        return path.read_text().strip()
-    return os.getenv(env_var, "missing")
-
 llm = AsyncOpenAI(
     base_url=os.getenv("LLM_BASE_URL"),
     api_key=get_secret("llm-api-key", "LLM_API_KEY"),
 )
-
 MODEL = os.getenv("LLM_MODEL", "gpt-5-mini")
-
 
 def validate_cve_id(cve_id: str) -> str:
     cve_id = cve_id.strip().upper()
     if not CVE_PATTERN.fullmatch(cve_id):
         raise HTTPException(400, {"error": "Invalid CVE format", "expected": "CVE-YYYY-NNNN"})
     return cve_id
-
 
 @app.get("/health")
 def health():
