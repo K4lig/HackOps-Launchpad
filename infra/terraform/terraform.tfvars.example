@@ -1,2 +1,5 @@
 budget_email = "email@example.com"
 admin_ips = ["your.IP.public"]
+ado_issuer              = "https://vstoken.dev.azure.com/00000000-0000-0000-0000-000000000000"
+ado_subject             = "sc://organizacion/proyecto/conexion"
+tfstate_storage_account = "sthackopstf00000"
