@@ -70,7 +70,9 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Empaquetar chart
-        run: helm package charts/cve-copilot --destination "$RUNNER_TEMP/chart"
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+        run: helm package charts/cve-copilot --app-version "$TAG" --destination "$RUNNER_TEMP/chart"
 
       - uses: azure/login@935127ca5bb3c4b02c9c2c10060028383878f33f
         with:
