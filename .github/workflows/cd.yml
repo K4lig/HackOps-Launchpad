@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  ACR_NAME: acrhackopsdev23xhf
+  ACR_NAME: acrhackopsdevc3evs
   RESOURCE_GROUP: rg-hackops-dev
   CLUSTER: aks-hackops-dev
 
