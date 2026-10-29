@@ -3,6 +3,7 @@ name: CD
 on:
   push:
     branches: [main]
+    patch-ignore: ['gitops/**']
   workflow_dispatch:
 
 permissions:
@@ -92,3 +93,22 @@ jobs:
             --file "$CHART" -o json)
           echo "$RESULT" | jq -r '.logs'
           test "$(echo "$RESULT" | jq -r '.exitCode')" = "0"
+
+  update-gitops:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production        # conserva tu aprobación manual
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Actualizar image.tag en Git
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          yq -i '.image.tag = strenv(TAG)' gitops/cve-copilot/values-dev.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "deploy(cve-copilot): $TAG"
+          git push
